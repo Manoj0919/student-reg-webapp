@@ -80,18 +80,9 @@ pipeline {
         }
         post {
         always{
+            sendemail()
              cleanWs()
         }
-        success {
-            
-            sendemail()
-                 
-         }
-         failure {
-            
-            sendemail()
-                 
-         }
        
     }
 
