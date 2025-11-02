@@ -84,7 +84,12 @@ pipeline {
         }
         success {
             
-            sendemail()
+            sendemail(${success})
+                 
+         }
+         failure {
+            
+            sendemail(${failure})
                  
          }
        
