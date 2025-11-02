@@ -32,7 +32,7 @@ pipeline {
             }
             stage("Maven build tool"){
                 steps{
-                    mavenaction("package")
+                    mavenaction( package )
                 }   
             }
             stage ("SonarQube") {
@@ -80,7 +80,7 @@ pipeline {
         }
         post {
             always{
-                sendemail(currentBuild.currentResult,"devopsmanoj1909@gmail.com")
+                sendemail(currentBuild.currentResult,"devopsmanu1909@gmail.com")
                 cleanWs()
             }
        
