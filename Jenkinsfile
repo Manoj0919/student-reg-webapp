@@ -32,7 +32,7 @@ pipeline {
             }
             stage("Maven build tool"){
                 steps{
-                    mavenaction( package )
+                    mavenaction( 'package' )
                 }   
             }
             stage ("SonarQube") {
