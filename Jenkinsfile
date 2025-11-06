@@ -26,6 +26,19 @@ pipeline {
         githubPush()
     }
     stages{
+            stage('Set Branch Name') {
+                steps {
+                    script {
+                        env.BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                     }
+                }
+            }
+
+             stage('Use Branch Name') {
+                steps {
+                        echo "Branch name is: ${env.BRANCH}"
+                }
+            }
             stage("git clone"){
                 steps{
                     git branch: 'main', credentialsId: 'GIT-credentials', url: 'https://github.com/Manoj0919/student-reg-webapp'
@@ -33,14 +46,6 @@ pipeline {
                     echo "Git clone completed"
                 }
             }
-             stage('Print Branch Name') {
-                steps {
-                    script {
-                   BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                    echo "Branch name is: ${BRANCH}"
-                    }
-                }
-                }
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
