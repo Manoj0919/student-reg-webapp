@@ -30,6 +30,7 @@ pipeline {
                 steps {
                     script {
                         branchName = getbranchname ()
+                        echo "Branch name is: ${branchName}"
                      }
                 }
             }
