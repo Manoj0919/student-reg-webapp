@@ -17,7 +17,7 @@ pipeline {
         SONARQUBE_TOKEN = ""
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
-        BRANCH_NAME = env.BRANCH_NAME
+        BRANCH_NAME = "env.BRANCH_NAME"
     }
 
     triggers {
