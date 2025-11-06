@@ -37,7 +37,7 @@ pipeline {
                 steps {
                     script {
                    env.BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                    echo "Branch name is: ${branch}"
+                    echo "Branch name is: ${env.BRANCH}"
                     }
                 }
                 }
@@ -64,14 +64,14 @@ pipeline {
                         steps{
                             sh"mvn clean deploy" 
                             sh "echo 'deploy to nexus'"
-                             echo " ${branch}  "
+                             echo " ${env.BRANCH}  "
                         }
                     }
                 }
             }       
             stage("DEPLOY TO TOMCAT") {
                 when {
-                    expression { ${branch} == "main" }
+                    expression { ${env.BRANCH} == "main" }
                 }
                     steps {
                         sshagent(['SSH-to-tomcatserver']) {
@@ -87,10 +87,10 @@ pipeline {
             }
             stage("SKIP DEPLOYMENT") {
                 when {
-                    expression { ${branch} != "main" }       
+                    expression { ${env.BRANCH} != "main" }       
                 }
                 steps {
-                     echo "Branch name is: ${branch} "
+                     echo "Branch name is: ${env.BRANCH} "
       
                     echo "This is not the main branch. Skipping deployment."
                 }
