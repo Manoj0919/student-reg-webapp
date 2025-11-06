@@ -76,11 +76,10 @@ pipeline {
             }
             stage("SKIP DEPLOYMENT") {
                 when {
-                    expression { env.BRANCH_NAME != "main" }
-                         sh " echo ${BRANCH_NAME} "
-                        
+                    expression { env.BRANCH_NAME != "main" }       
                 }
                 steps {
+                     sh " echo ${BRANCH_NAME} "
                     echo "This is not the main branch. Skipping deployment."
                 }
             }
