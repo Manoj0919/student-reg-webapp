@@ -35,22 +35,26 @@ pipeline {
                     mavenaction( 'package' )
                 }   
             }
-            stage ("SonarQube") {
-                steps{
-                    withCredentials([string(credentialsId: 'SonarToken', variable: 'SONAR_TOKEN')]) {
- 
-                        sh """
-                        mvn clean verify sonar:sonar -Dsonar.token=${SONAR_TOKEN}
-                        """
+            stage ("parallel run "){
+                parallel {
+                    stage ("SonarQube") {
+                        steps{
+                            withCredentials([string(credentialsId: 'SonarToken', variable: 'SONAR_TOKEN')]) {
+        
+                                sh """
+                                mvn clean verify sonar:sonar -Dsonar.token=${SONAR_TOKEN}
+                                """
+                            }
+                        }
+                    }
+                    stage ("Deploy Artifact to nexus") {
+                        steps{
+                            sh"mvn clean deploy" 
+                            sh "echo 'deploy to nexus'"
+                        }
                     }
                 }
-            }
-            stage ("Deploy Artifact to nexus") {
-                steps{
-                    sh"mvn clean deploy" 
-                    sh "echo 'deploy to nexus'"
-                }
-            }
+            }       
             stage("DEPLOY TO TOMCAT") {
                 when {
                     expression { env.BRANCH_NAME == "main" }
