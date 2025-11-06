@@ -29,7 +29,7 @@ pipeline {
             stage('Set Branch Name') {
                 steps {
                     script {
-                        env.BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                        env.BRANCH = getbranchname()
                      }
                 }
             }
