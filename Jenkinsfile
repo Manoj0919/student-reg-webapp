@@ -31,6 +31,14 @@ pipeline {
                     echo "Git clone completed"
                 }
             }
+             stage('Print Branch Name') {
+                steps {
+                    script {
+                    def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    echo "Branch name is: ${branch}"
+                    }
+                }
+                }
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
@@ -62,8 +70,6 @@ pipeline {
             stage("DEPLOY TO TOMCAT") {
                 when {
                     expression { env.BRANCH_NAME == "main" }
-            
-
                 }
                     steps {
                         sshagent(['SSH-to-tomcatserver']) {
