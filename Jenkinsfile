@@ -96,7 +96,7 @@ pipeline {
                     expression { ${branchName} != "main" }       
                 }
                 steps {
-                     echo "Branch name is: ${branchName} "
+                     echo "Skipped due to the Branch name is: ${branchName} "
       
                     echo "This is not the main branch. Skipping deployment."
                 }
