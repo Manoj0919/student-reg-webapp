@@ -36,8 +36,8 @@ pipeline {
              stage('Print Branch Name') {
                 steps {
                     script {
-                   env.BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                    echo "Branch name is: ${env.BRANCH}"
+                   BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    echo "Branch name is: ${BRANCH}"
                     }
                 }
                 }
