@@ -34,6 +34,8 @@ pipeline {
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
+                    echo "Branch name is: ${env.BRANCH_NAME}"
+      
                 }   
             }
             stage ("parallel run "){
@@ -80,7 +82,8 @@ pipeline {
                     expression { env.BRANCH_NAME != "main" }       
                 }
                 steps {
-                     echo "${env.BRANCH_NAME} "
+                     echo "Branch name is: ${env.BRANCH_NAME}"
+      
                     echo "This is not the main branch. Skipping deployment."
                 }
             }
