@@ -17,6 +17,7 @@ pipeline {
         SONARQUBE_TOKEN = ""
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
+        BRANCH_NAME = env.BRANCH_NAME
     }
 
     triggers {
@@ -56,7 +57,7 @@ pipeline {
                 }
             }       
             stage("DEPLOY TO TOMCAT") {
-                sh " echo env.BRANCH_NAME "
+                sh " echo ${BRANCH_NAME} "
                 when {
                     expression { env.BRANCH_NAME == "main" }
                 }
@@ -75,7 +76,7 @@ pipeline {
             stage("SKIP DEPLOYMENT") {
                 when {
                     expression { env.BRANCH_NAME != "main" }
-                         sh " echo env.BRANCH_NAME "
+                         sh " echo ${BRANCH_NAME} "
                         
                 }
                 steps {
