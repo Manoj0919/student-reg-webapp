@@ -29,8 +29,7 @@ pipeline {
             stage('Set Branch Name') {
                 steps {
                     script {
-                       def branchName = sh(script: "git name-rev --name-only HEAD", returnStdout: true).trim()
-                       echo "Branch name is: ${branchName}"
+                        branchName = getbranchname ()
                      }
                 }
             }
