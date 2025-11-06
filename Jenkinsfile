@@ -108,7 +108,7 @@ pipeline {
         post {
             always{
                 sendemail(currentBuild.currentResult,"devopsmanu1909@gmail.com")
-                cleanWs()*/
+                cleanWs()
             }
        
     }
