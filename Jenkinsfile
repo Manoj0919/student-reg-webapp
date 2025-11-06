@@ -17,7 +17,7 @@ pipeline {
         SONARQUBE_TOKEN = ""
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
-        BRANCH = ''
+       def branchName = ''
        /* def branch = script { sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() }
     */
     }
@@ -29,14 +29,14 @@ pipeline {
             stage('Set Branch Name') {
                 steps {
                     script {
-                        env.BRANCH = getbranchname()
+                        branchName = getbranchname()
                      }
                 }
             }
 
              stage('Use Branch Name') {
                 steps {
-                        echo "Branch name is: ${env.BRANCH}"
+                        echo "Branch name is: ${branchName}"
                 }
             }
             stage("git clone"){
@@ -49,7 +49,7 @@ pipeline {
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
-                    echo "Branch name is: ${branch} "
+                    echo "Branch name is: ${branchName} "
       
                 }   
             }
@@ -69,14 +69,14 @@ pipeline {
                         steps{
                             sh"mvn clean deploy" 
                             sh "echo 'deploy to nexus'"
-                             echo " ${env.BRANCH}  "
+                             echo " ${branchName}  "
                         }
                     }
                 }
             }       
             stage("DEPLOY TO TOMCAT") {
                 when {
-                    expression { ${env.BRANCH} == "main" }
+                    expression { ${branchName} == "main" }
                 }
                     steps {
                         sshagent(['SSH-to-tomcatserver']) {
@@ -92,10 +92,10 @@ pipeline {
             }
             stage("SKIP DEPLOYMENT") {
                 when {
-                    expression { ${env.BRANCH} != "main" }       
+                    expression { ${branchName} != "main" }       
                 }
                 steps {
-                     echo "Branch name is: ${env.BRANCH} "
+                     echo "Branch name is: ${branchName} "
       
                     echo "This is not the main branch. Skipping deployment."
                 }
