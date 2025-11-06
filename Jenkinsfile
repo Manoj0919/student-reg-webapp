@@ -63,6 +63,7 @@ pipeline {
                                 sh """
                                 mvn clean verify sonar:sonar -Dsonar.token=${SONAR_TOKEN}
                                 """
+                                 echo " Code verification done"
                             }
                         }
                     }
@@ -77,7 +78,7 @@ pipeline {
             }       
             stage("DEPLOY TO TOMCAT") {
                 when {
-                    expression{ ${branchName} == "main" }
+                    expression{ branchName == "main" }
                 }
                     steps {
                         sshagent(['SSH-to-tomcatserver']) {
@@ -93,7 +94,7 @@ pipeline {
             }
             stage("SKIP DEPLOYMENT") {
                 when {
-                    expression { ${branchName} != "main" }       
+                    expression { branchName != "main" }       
                 }
                 steps {
                      echo "Skipped due to the Branch name is: ${branchName} "
@@ -107,7 +108,7 @@ pipeline {
         post {
             always{
                 sendemail(currentBuild.currentResult,"devopsmanu1909@gmail.com")
-                cleanWs()
+                cleanWs()*/
             }
        
     }
