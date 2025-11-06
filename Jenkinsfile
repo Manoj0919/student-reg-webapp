@@ -59,7 +59,7 @@ pipeline {
             stage("DEPLOY TO TOMCAT") {
                 when {
                     expression { env.BRANCH_NAME == "main" }
-                     sh " echo ${BRANCH_NAME} "
+            
 
                 }
                     steps {
