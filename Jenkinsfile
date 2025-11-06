@@ -52,7 +52,7 @@ pipeline {
                         steps{
                             sh"mvn clean deploy" 
                             sh "echo 'deploy to nexus'"
-                            sh " echo ${env.BRANCH_NAME} "
+                             echo "${env.BRANCH_NAME} "
                         }
                     }
                 }
@@ -80,7 +80,7 @@ pipeline {
                     expression { env.BRANCH_NAME != "main" }       
                 }
                 steps {
-                     sh " echo ${env.BRANCH_NAME} "
+                     echo "${env.BRANCH_NAME} "
                     echo "This is not the main branch. Skipping deployment."
                 }
             }
