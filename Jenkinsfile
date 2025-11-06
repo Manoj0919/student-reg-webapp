@@ -43,7 +43,7 @@ pipeline {
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
-                    echo "Branch name is: ${env.BRANCH_NAME}"
+                    echo "Branch name is: ${branch} "
       
                 }   
             }
@@ -63,7 +63,7 @@ pipeline {
                         steps{
                             sh"mvn clean deploy" 
                             sh "echo 'deploy to nexus'"
-                             echo "${env.BRANCH_NAME} "
+                             echo " ${branch}  "
                         }
                     }
                 }
@@ -89,7 +89,7 @@ pipeline {
                     expression { ${branch} != "main" }       
                 }
                 steps {
-                     echo "Branch name is: ${env.BRANCH_NAME}"
+                     echo "Branch name is: ${branch} "
       
                     echo "This is not the main branch. Skipping deployment."
                 }
