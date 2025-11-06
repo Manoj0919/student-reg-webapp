@@ -17,8 +17,9 @@ pipeline {
         SONARQUBE_TOKEN = ""
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
-        BRANCH_NAME = "env.BRANCH_NAME"
-        def branch = script { sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() }
+        BRANCH = ''
+       /* def branch = script { sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() }
+    */
     }
 
     triggers {
@@ -35,7 +36,7 @@ pipeline {
              stage('Print Branch Name') {
                 steps {
                     script {
-                    def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                   env.BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                     echo "Branch name is: ${branch}"
                     }
                 }
