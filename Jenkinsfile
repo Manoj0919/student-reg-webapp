@@ -18,6 +18,7 @@ pipeline {
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
         BRANCH_NAME = "env.BRANCH_NAME"
+        def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
     }
 
     triggers {
