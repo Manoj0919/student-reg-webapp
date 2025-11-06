@@ -17,6 +17,7 @@ pipeline {
         SONARQUBE_TOKEN = ""
         TOMCAT_IP_ADDRESS = "18.212.79.240"
         TOMCAT_USER_NAME = "ec2-user"
+        BRANCH_NAME = "env.BRANCH_NAME"
     }
 
     triggers {
@@ -30,9 +31,19 @@ pipeline {
                     echo "Git clone completed"
                 }
             }
+             stage('Print Branch Name') {
+                steps {
+                    script {
+                    def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    echo "Branch name is: ${branch}"
+                    }
+                }
+                }
             stage("Maven build tool"){
                 steps{
                     mavenaction( 'package' )
+                    echo "Branch name is: ${env.BRANCH_NAME}"
+      
                 }   
             }
             stage ("parallel run "){
@@ -51,13 +62,14 @@ pipeline {
                         steps{
                             sh"mvn clean deploy" 
                             sh "echo 'deploy to nexus'"
+                             echo "${env.BRANCH_NAME} "
                         }
                     }
                 }
             }       
             stage("DEPLOY TO TOMCAT") {
                 when {
-                    expression { env.BRANCH_NAME == "main" }
+                    expression { ${branch} == "main" }
                 }
                     steps {
                         sshagent(['SSH-to-tomcatserver']) {
@@ -73,9 +85,11 @@ pipeline {
             }
             stage("SKIP DEPLOYMENT") {
                 when {
-                    expression { env.BRANCH_NAME != "main" }
+                    expression { ${branch} != "main" }       
                 }
                 steps {
+                     echo "Branch name is: ${env.BRANCH_NAME}"
+      
                     echo "This is not the main branch. Skipping deployment."
                 }
             }
