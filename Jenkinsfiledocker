@@ -102,7 +102,7 @@ CI/CD Pipeline
             agent { label 'docker' }
                 steps{
                     sh """
-                    trivy image --severity HIGH,CRITICAL ${env.JOB_NAME}:${env.BUILD_NUMBER} || echo "Trivy scan failed, but continuing..."
+                    trivy image ${env.JOB_NAME}:${env.BUILD_NUMBER} || echo "Trivy scan failed, but continuing..."
                     echo "Trivy scan completed for image ${env.JOB_NAME}:${env.BUILD_NUMBER}"
                     """
                 }
