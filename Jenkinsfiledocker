@@ -1,21 +1,112 @@
 pipeline {
-    agent any
+    agent none
     tools {
-        maven "Maven-3.9.15"
+      maven 'Maven-3.9.15'
     }
     triggers{
-        githubpush()
+        githubPush()
     }
-    enevironments{
-        
+    environment {
+        Docker_Host = "172.31.18.32"
     }
     stages {
-        stage('gitClone') {
-            steps {
-                // Get some code from a GitHub repository 
-                git branch: 'development', credentialsId: 'Git', url: 'https://github.com/Manoj0919/student-reg-webapp.git'
+        stage('mvn build') {
+            agent { label 'Maven' }
+                steps {
+                    // Get some code from a GitHub repository 
+                sh" mvn clean package "
+                echo "mvn build successful"
+                }
             }
+        stage('Code Quality') {
+            agent { label 'Maven' }
+                steps {
+                    withCredentials([string(credentialsId: 'Sonar_token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                        mvn test sonar:sonar -Dsonar.token=${SONAR_TOKEN}
+                        """
+                        echo "Code quality analysis completed"
+                }
+            }
+        }
+        stage('Generate Report') {
+            agent { label 'Maven' }
+                steps {
+                    // Example: Export issues to CSV using SonarQube API
+                    withCredentials([string(credentialsId: 'Sonar_token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                        # Export issues to CSV
+                        curl -s -u ${SONAR_TOKEN}: http://172.31.89.50:9000/api/issues/search?componentKeys=com.rushi:student-reg-webapp&types=BUG,VULNERABILITY,CODE_SMELL \
+                        | jq -r '.issues[] | [.key, .type, .severity, .message] | @csv' > sonar_report.csv
+                        ls -l sonar_report.csv
+                        head -n 5 sonar_report.csv || echo 'CSV is empty'
+                        # Export summary metrics (bugs, vulnerabilities, code_smells, coverage)
+                        curl -s -u ${SONAR_TOKEN}: "http://172.31.89.50:9000/api/measures/component?component=com.rushi:student-reg-webapp&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
+                        | jq -r '.component.measures[] | [.metric, .value] | @csv' > sonar_summary.csv
 
+                        ls -l sonar_report.csv sonar_summary.csv
+                        head -n 5 sonar_summary.csv || echo 'CSV is empty'
+                        """
+                        archiveArtifacts artifacts: 'sonar_report.csv', fingerprint: true
+                        echo "SonarQube report generated and archived"
+                    }
+                }
+        }
+        stage('Email Report') {
+            agent { label 'Maven' }
+                steps {
+                    emailext(
+                        subject: "SonarQube Report - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """Hello Team,
+
+Attached is the SonarQube analysis report for build #${env.BUILD_NUMBER}.
+Key metrics:
+- Bugs, Vulnerabilities, Code Smells exported
+- Quality Gate status: ${currentBuild.result}
+
+Regards,
+CI/CD Pipeline
+""",
+                    to: 'devopsmanu1909@gmail.com',
+                    attachmentsPattern: '*.csv'
+                     )
+                
+                }
+            
+        }
+        stage("COpy Jar file to Docker system"){
+            agent { label 'Maven' }
+                steps{
+                    sshagent(['DOCKER-AGENT-SSH']) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${Docker_Host} "mkdir -p /home/ec2-user/JenkinsDocker/${env.JOB_NAME}_${env.BUILD_NUMBER}" || echo "Directory creation failed, but continuing..."
+
+                        scp -o StrictHostKeyChecking=no -r . ec2-user@${Docker_Host}:/home/ec2-user/JenkinsDocker/${env.JOB_NAME}_${env.BUILD_NUMBER} || echo "File transfer failed, but continuing..."
+                        sleep 20
+                        echo "Jar file copied successfully to Docker host"
+                        """
+                    }  
+                }
+        }
+        stage("Build Docker image"){
+            agent { label 'docker' }
+                steps{
+                    sh """
+                    cd /home/ec2-user/JenkinsDocker/${env.JOB_NAME}_${env.BUILD_NUMBER} 
+                    docker build -t ${env.JOB_NAME}:${env.BUILD_NUMBER} .
+                    echo "Docker image ${env.JOB_NAME}:${env.BUILD_NUMBER} built successfully"
+                    """
+                }
+        }
+        stage("containerize"){
+            agent { label 'docker' }        
+                steps{
+                        sh """
+                        docker run -d --name ${env.JOB_NAME}_${env.BUILD_NUMBER} -p 8081:8080 ${env.JOB_NAME}:${env.BUILD_NUMBER}
+                        echo "Docker container ${env.JOB_NAME}_${env.BUILD_NUMBER} started successfully on port 8080"
+                        """
+                    
+                }
         }
     }
 }
